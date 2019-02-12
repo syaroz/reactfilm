@@ -1,7 +1,7 @@
 import React, { Component} from 'react';
 import {API_URL, API_KEY, IMAGE_BASE_URL, POSTER_SIZE, BACKDROP_SIZE} from '../../config.js';
 import HeroImage from '../elements/HeroImage/HeroImage';
-import SearchBar from '../elements/FourColGrid/FourColGrid';
+import SearchBar from '../elements/SearchBar/SearchBar';
 import FourColGrid from '../elements/FourColGrid/FourColGrid';
 import './Home.css';
 import MovieThumb from '../elements/MovieThumb/MovieThumb';
@@ -22,6 +22,22 @@ class Home extends Component{
         this.setState({loading:true});
         const endpoint = `${API_URL}movie/popular?api_key=${API_KEY}&language=en-US&page=1`;
         this.fetchItems(endpoint);
+    }
+
+    searchItems = (searchTerm) => {
+        console.log(searchTerm);
+        let endpoint = '';
+        this.setState({
+            movies: [],
+            loading: true,
+            searchTerm
+        })
+
+        if(searchTerm === ''){
+            endpoint = `${API_URL}movie/popular?api_key=${API_KEY}&language=en-US&page=1`;   
+        }else{
+            endpoint = `${API_URL}search/movie?api_key=${API_KEY}&language=en-US&query=${searchTerm}`;
+        }
     }
 
     fetchItems = (endpoint) => {
@@ -65,7 +81,7 @@ class Home extends Component{
             text={this.state.heroImage.overview}
             ></HeroImage>
 
-            <SearchBar></SearchBar>
+            <SearchBar callback={this.searchItems}></SearchBar>
             </div> : null }
            
             <FourColGrid></FourColGrid>
