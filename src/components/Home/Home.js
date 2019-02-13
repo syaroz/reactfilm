@@ -63,7 +63,7 @@ class Home extends Component{
 
     loadMoreItems = () => {
         let endpoint = '';
-        this.state({loading: true});
+        this.setState({loading: true});
 
         if(this.state.searchTerm === ''){
             endpoint = `${API_URL}movie/popular?api_key=${API_KEY}&language=en-US&page=${this.state.currentPage + 1}`;
@@ -87,7 +87,9 @@ class Home extends Component{
 
                     <SearchBar callback={this.searchItems}></SearchBar>
                 </div> : null }
+
                 <div className="rmdb-home-grid">
+
                     <FourColGrid header={this.state.searchTerm ? "Search Result" : "Popular Movies"} loading={this.state.loading}>
                     {this.state.movies.map((element, i) => {
                         return <MovieThumb key={i} clickable={true} image={element.poster_path ? `${IMAGE_BASE_URL}${POSTER_SIZE}/${element.poster_path}` : "./images/no_image.jpg"}
@@ -96,9 +98,14 @@ class Home extends Component{
                         
 
                     </FourColGrid>
+
+                    {this.state.loading ? <Spinner></Spinner> : null}
+                    {(this.state.currentPage <= this.state.totalPages && !this.state.loading)? 
+                    <LoadMoreBtn text="Load More" onClick={this.loadMoreItems}></LoadMoreBtn>
+                    : null }
+
                 </div>
-                <Spinner></Spinner>
-                <LoadMoreBtn></LoadMoreBtn>
+
             </div>
         )
     }
