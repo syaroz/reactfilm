@@ -38,6 +38,8 @@ class Home extends Component{
         }else{
             endpoint = `${API_URL}search/movie?api_key=${API_KEY}&language=en-US&query=${searchTerm}`;
         }
+
+        this.fetchItems(endpoint);
     }
 
     fetchItems = (endpoint) => {
@@ -53,6 +55,8 @@ class Home extends Component{
                 totalPages: result.total_pages
 
             })
+
+            console.log(result);
         })
         .catch(error => console.error("error", error))
     }
@@ -73,20 +77,28 @@ class Home extends Component{
     render(){
         return (
             <div className="rmdb-home">
-            {this.state.heroImage ?  
-            <div>
-            <HeroImage
-            image={`${IMAGE_BASE_URL}${BACKDROP_SIZE}${this.state.heroImage.backdrop_path}`}
-            title={this.state.heroImage.original_title}
-            text={this.state.heroImage.overview}
-            ></HeroImage>
+                {this.state.heroImage ?  
+                <div>
+                    <HeroImage
+                    image={`${IMAGE_BASE_URL}${BACKDROP_SIZE}${this.state.heroImage.backdrop_path}`}
+                    title={this.state.heroImage.original_title}
+                    text={this.state.heroImage.overview}
+                    ></HeroImage>
 
-            <SearchBar callback={this.searchItems}></SearchBar>
-            </div> : null }
-           
-            <FourColGrid></FourColGrid>
-            <Spinner></Spinner>
-            <LoadMoreBtn></LoadMoreBtn>
+                    <SearchBar callback={this.searchItems}></SearchBar>
+                </div> : null }
+                <div className="rmdb-home-grid">
+                    <FourColGrid header={this.state.searchTerm ? "Search Result" : "Popular Movies"} loading={this.state.loading}>
+                    {this.state.movies.map((element, i) => {
+                        return <MovieThumb key={i} clickable={true} image={element.poster_path ? `${IMAGE_BASE_URL}${POSTER_SIZE}/${element.poster_path}` : "./images/no_image.jpg"}
+                                movieId={element.id} movieName={element.original_title}></MovieThumb>
+                                })} 
+                        
+
+                    </FourColGrid>
+                </div>
+                <Spinner></Spinner>
+                <LoadMoreBtn></LoadMoreBtn>
             </div>
         )
     }
