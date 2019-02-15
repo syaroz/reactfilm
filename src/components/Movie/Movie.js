@@ -17,6 +17,10 @@ class Movie extends Component{
     }
     
     componentDidMount(){
+        if(localStorage.getItem(`${this.props.match.params.movieId}`)){
+            const state = JSON.parse(localStorage.getItem(`${this.props.match.params.movieId}`));
+            this.setState({...state});
+        }
         this.setState({
             loading: true
         })
@@ -26,30 +30,33 @@ class Movie extends Component{
          this.fetchItems(endpoint);
     }
 
-    fetchItems = (endpoint) => {
-        fetch(endpoint)
-        .then((result) => result.json())
-        .then((result) => {
-            console.log(result);
+    fetchItems = async endpoint => {
+        const result = await ( await fetch(endpoint)).json();
+
+        try{
+
             if(result.status_code){
                 this.setState({loading : false})
             }else{
-                this.setState({movie: result}, () => {
-                    //Fetch Actor in the setState callback function
-                    const endpoint = `${API_URL}movie/${this.props.match.params.movieId}/credits?api_key=${API_KEY}`;
-                    fetch(endpoint)
-                    .then(result => result.json())
-                    .then((result) => {
-                        const directors = result.crew.filter((member) =>  member.job === "Director");
-                        this.setState({
-                            actors: result.cast,
-                            directors,
-                            loading: false,
-                        })
-                    })
-                })
+                this.setState({movie: result})
+                 
+                const creditEndpoint =`${API_URL}movie/${this.props.match.params.movieId}/credits?api_key=${API_KEY}`;
+
+                const creditsResult = await ( await fetch(creditEndpoint)).json();
+
+                const directors = creditsResult.crew.filter((member) =>  member.job === "Director");
+
+                this.setState({
+                    actors: creditsResult.cast,
+                    directors,
+                    loading: false,
+                }, () => {
+                    localStorage.setItem(`${this.props.match.params.movieId}`, JSON.stringify(this.state))
+                })   
             }
-        }).catch(error => console.error('error', error ))
+        }catch(e){
+            console.log('There was an error: ', e);
+        }
     }
     
     render(){
